@@ -27,18 +27,18 @@
 								.y(function (d){return d.y})
 								.interpolate("linear");
 
-		var maxWidth = screen.width;
-		var rangedX= d3.range(0,maxWidth,15); //start, stop, step
+		var maxWidth = screen.width/2;
+		var rangedX= d3.range(0,maxWidth,20); //start, stop, step
 		
-		for (var i=0; i<(rangedX.length-50); i++) { 
-
-		var tempX=5, tempY5;
-
-		var triangleAdd = svgContainer.append("path")
+		var triangleAdd = svgContainer.selectAll("path")
+					.data(rangedX)
+					.enter()
+					.append("path")
 					.attr("d", triangle(triangleData))
-					.attr("transform", "translate(" + i*20 + ","+ 0 +")") //this is key!!
+					.attr("transform", function(d){ console.log(d);
+													return "translate(" + (d) + ","+ 0 +")" }) //this is key!!
 					.attr("fill","blue");
-				
+
 		var circle = circles
 						.attr("cy", function(d){return d*10})
 						.attr("cx", 50)
@@ -51,12 +51,6 @@
 							return returnColor;
 						});
 							
-		};
-		
-
-		console.log(maxWidth);
-		console.log(rangedX);
-		console.log(rangedX.length);
 		
 		</script>
     </body>
