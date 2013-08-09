@@ -28,17 +28,24 @@
 								.interpolate("linear");
 
 		var maxWidth = screen.width/2;
-		var rangedX= d3.range(0,maxWidth,20); //start, stop, step
+		var maxHeight = screen.height/2;
+		var rangedX= d3.range(0,maxWidth,20); //start, stop, step... this is an array
+		var rangedY = d3.range(0,maxHeight,20); // this is also an array
+				
 		
-		var triangleAdd = svgContainer.selectAll("path")
-					.data(rangedX)
-					.enter()
-					.append("path")
-					.attr("d", triangle(triangleData))
-					.attr("transform", function(d){ console.log(d);
-													return "translate(" + (d) + ","+ 0 +")" }) //this is key!!
-					.attr("fill","blue");
-
+		for (var i=0; i<rangedY.length; i++){ //trying to create new rows with this loop... but it's not working
+			console.log("start" + rangedY[i]);
+			var triangleAdd = svgContainer.selectAll("path")
+						.data(rangedX)
+						.enter()
+						.append("path")
+						.attr("d", triangle(triangleData))
+						.attr("transform", function(d){ console.log(d + "," + rangedY[i]);
+														return "translate(" + (d) + ","+ rangedY[i] +")" }) //this is key!!
+						.attr("fill","blue");
+		}
+		
+		
 		var circle = circles
 						.attr("cy", function(d){return d*10})
 						.attr("cx", 50)
