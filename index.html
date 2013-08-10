@@ -65,17 +65,14 @@
 			.charge(10);
 
 		force.on("tick", function(d,i) {
-		redSelectionIndex.fixed = true; // added this line to fix the red triangle
+		newRange[redSelectionIndex].fixed = true; // added this line to fix the red triangle
+
 			svgContainer.selectAll("path")  	
 						.attr("transform", function(d,i) { 
-							if( i == redSelectionIndex ){
-								return "translate(" + redX + "," + redY + ")"; 
-							}
-							else{
 								return "translate(" + d.x + "," + d.y + ")"; 
-							}
 						});
-			// 	console.log("start charge");
+
+
 		});
 		
 		
@@ -116,7 +113,7 @@
 					});
 			
 
-					
+	
 		</script>
     </body>
 </html>     
