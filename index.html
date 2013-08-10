@@ -55,20 +55,17 @@
 		var redX;
 		var redY;
 		var redSelectionIndex;
-
+		
 
 		var force = d3.layout.force()
 			.nodes(newRange)
 			.links([])
 			.size([w, h])
 			.theta(100)
-			.charge( function(d,i){
-				if( i = redSelectionIndex ){
-					return 200
-				} else {return 10}
-			});
+			.charge(10);
 
 		force.on("tick", function(d,i) {
+		redSelectionIndex.fixed = true; // added this line to fix the red triangle
 			svgContainer.selectAll("path")  	
 						.attr("transform", function(d,i) { 
 							if( i == redSelectionIndex ){
