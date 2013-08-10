@@ -37,72 +37,43 @@
 		// a better answer here: http://www.javascripter.net/faq/twodimensional.htm
 		
 		
-		//COMPLETE ARRAY
+		//COMPLETE ARRAY of OBJECTS
 		var newRange = new Array();
 		
 		for(var i=0; i<rangedY.length; i++){
-			var tempArray = new Array();
+			var tempArray = new Object();
 			for(var j=0; j<rangedX.length; j++){
-				tempArray = [rangedX[j], rangedY[i]];
+				tempArray = {x: rangedX[j], y: rangedY[i]};
 				newRange.push(tempArray);
 			}
 		};
-
-		//CREATE A NEW ARRAY of *JUST* THE ONES TO GET EXPLODED
-		//Will need to apply an algorithm based on the index of the red dot
-		
-		var exploders = new Array();
-		
-		for (var i=0; i<4; i++){
-			
-		};
-
-		var force = d3.layout.force()
-			.nodes(newRange)
-			.links([])
-			.size([w, h])
-			.theta(.8)
-			.charge(function(d){
-				if(d != currentHover){console.log("get away"); return -30}
-				else {return -30}
-			});
-
+		console.log(newRange);
 		var currentHover;
 
-force.on("tick", function(e) {
-	svgContainer.selectAll("path")  	
-	    .attr("transform", function(d) { 
-	    if (d == currentHover){console.log("yippee"); return "translate(" + currentHover.x + "," + currentHover.y + ")"; }
-		else{	return "translate(" + d.x + "," + d.y + ")"; }});
-	   // console.log("start charge");
-//	force.charge();
-});
 
-//force.start();
-		
 		var triangleAdd = svgContainer.selectAll("path")
 					.data(newRange)
 					.enter()
 					.append("path")
 					.attr("d", triangle(triangleData))
 					.attr("transform", function(d){ //console.log(d + "," + rangedY[i]);
-													return "translate(" + d[0] + ","+ d[1] +")" }) //this is key!!
+													return "translate(" + d.x + ","+ d.y +")" }) //this is key!!
 					.attr("fill","lightskyblue")
 					.on("mouseover", function(){
-						currentHover = d3.select(this);
-						currentHover.style("fill", "dodgerblue");
+//						currentHover.style("fill", "dodgerblue");
 					})
 					.on("mouseout", function(){
-						currentHover.style("fill","lightskyblue");
-					})
-					.on("click",function(){
+						//currentHover.style("fill","lightskyblue");
+					});
+/*					.on("click",function(){
 						if (currentHover = d3.select(this)){
 							currentHover.style("fill","firebrick");
-							console.log("currentHover starts here "+currentHover)
-							//force.start();
+							console.log("currentHover starts here "+currentHover);
+//							force.start();
 						};
 					});
-			
+*/			
+
 					
 		</script>
     </body>
