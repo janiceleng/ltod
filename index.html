@@ -43,13 +43,30 @@
 		for(var i=0; i<rangedY.length; i++){
 			var tempArray = new Object();
 			for(var j=0; j<rangedX.length; j++){
-				tempArray = {x: rangedX[j], y: rangedY[i]};
+				tempArray = {	x: rangedX[j], 
+								y: rangedY[i]};
 				newRange.push(tempArray);
 			}
 		};
-		console.log(newRange);
+		console.log(newRange[2]);
 		var currentHover;
+		var redSelectionIndex;
 
+
+		var force = d3.layout.force()
+			.nodes(newRange)
+			.links([])
+			.size([w, h])
+			.theta(100)
+			.charge(10);
+
+		force.on("tick", function(e) {
+			svgContainer.selectAll("path")  	
+				.attr("transform", function(d,i) { return "translate(" + d.x + "," + d.y + ")"; }  );
+			   // console.log("start charge");
+		});
+		
+		
 
 		var triangleAdd = svgContainer.selectAll("path")
 					.data(newRange)
@@ -59,20 +76,26 @@
 					.attr("transform", function(d){ //console.log(d + "," + rangedY[i]);
 													return "translate(" + d.x + ","+ d.y +")" }) //this is key!!
 					.attr("fill","lightskyblue")
-					.on("mouseover", function(){
-//						currentHover.style("fill", "dodgerblue");
+					.on("mouseover", function(d,i){
+						currentHover = d3.select(this);
+						console.log(i);
+						currentHover.style("fill", "dodgerblue");
 					})
-					.on("mouseout", function(){
-						//currentHover.style("fill","lightskyblue");
-					});
-/*					.on("click",function(){
+					.on("mouseout", function(d){
+						currentHover.style("fill","lightskyblue");
+					})
+					.on("click",function(d,i){
 						if (currentHover = d3.select(this)){
+							redSelectionIndex = i;
 							currentHover.style("fill","firebrick");
-							console.log("currentHover starts here "+currentHover);
-//							force.start();
+							console.log("The exploder will be "+ redSelectionIndex);
+							force.size([d.x*2, d.y*2]);
+
+							newRange.splice(redSelectionIndex,1); console.log("yippee");
+							force.start();
 						};
 					});
-*/			
+			
 
 					
 		</script>
