@@ -9,27 +9,26 @@
     	<p><a href="http://www.dashingd3js.com/using-the-svg-coordinate-space">http://www.dashingd3js.com/using-the-svg-coordinate-space</a></p>
         <script type="text/javascript">
 		
-		var data = [40,20,10];
+		var w = screen.width-100;
+		var h = 500;
+		
 		var triangleData = 		[{"x":10, "y":0},
 							{"x":20, "y":20},
-							{"x":0, "y":20}
-						];
+							{"x":0, "y":20}];
+			
 		var svgContainer = d3.select("body").append("svg")
-						.attr("width", screen.offsetwidth) //browser size
-						.attr("height",500)
-						.style("border","1px solid violet")
+						.attr("width", w) //browser size
+						.attr("height",h)
+						.style("border","10px solid grey")
 						.style("background-color","grey");
-
-		var circles = svgContainer.selectAll("circle").data(data).enter()
-							.append("circle")
 
 		var triangle = d3.svg.line(triangleData)
 								.x(function (d){return d.x})
 								.y(function (d){return d.y})
 								.interpolate("linear");
 
-		var maxWidth = screen.width;
-		var maxHeight = screen.height;
+		var maxWidth = screen.width/2;
+		var maxHeight = screen.height/2;
 		var rangedX= d3.range(0,maxWidth,20); //start, stop, step... this is an array
 		var rangedY = d3.range(0,maxHeight,20); // this is also an array
 		
@@ -37,6 +36,8 @@
 		// tutorial here: http://alignedleft.com/tutorials/d3/making-a-scatterplot 
 		// a better answer here: http://www.javascripter.net/faq/twodimensional.htm
 		
+		
+		//COMPLETE ARRAY
 		var newRange = new Array();
 		
 		for(var i=0; i<rangedY.length; i++){
@@ -44,13 +45,40 @@
 			for(var j=0; j<rangedX.length; j++){
 				tempArray = [rangedX[j], rangedY[i]];
 				newRange.push(tempArray);
-//				console.log(tempArray);
-//				console.log(newRange.length);
-				//newRange[i][j]= tempArray(rangedX[j]);
 			}
 		};
+
+		//CREATE A NEW ARRAY of *JUST* THE ONES TO GET EXPLODED
+		//Will need to apply an algorithm based on the index of the red dot
 		
-//		console.log("length is "+newRange.length+ 	newRange);
+		var exploders = new Array();
+		
+		for (var i=0; i<4; i++){
+			
+		};
+
+		var force = d3.layout.force()
+			.nodes(newRange)
+			.links([])
+			.size([w, h])
+			.theta(.8)
+			.charge(function(d){
+				if(d != currentHover){console.log("get away"); return -30}
+				else {return -30}
+			});
+
+		var currentHover;
+
+force.on("tick", function(e) {
+	svgContainer.selectAll("path")  	
+	    .attr("transform", function(d) { 
+	    if (d == currentHover){console.log("yippee"); return "translate(" + currentHover.x + "," + currentHover.y + ")"; }
+		else{	return "translate(" + d.x + "," + d.y + ")"; }});
+	   // console.log("start charge");
+//	force.charge();
+});
+
+//force.start();
 		
 		var triangleAdd = svgContainer.selectAll("path")
 					.data(newRange)
@@ -59,9 +87,23 @@
 					.attr("d", triangle(triangleData))
 					.attr("transform", function(d){ //console.log(d + "," + rangedY[i]);
 													return "translate(" + d[0] + ","+ d[1] +")" }) //this is key!!
-					.attr("fill","lightskyblue");		
+					.attr("fill","lightskyblue")
+					.on("mouseover", function(){
+						currentHover = d3.select(this);
+						currentHover.style("fill", "dodgerblue");
+					})
+					.on("mouseout", function(){
+						currentHover.style("fill","lightskyblue");
+					})
+					.on("click",function(){
+						if (currentHover = d3.select(this)){
+							currentHover.style("fill","firebrick");
+							console.log("currentHover starts here "+currentHover)
+							//force.start();
+						};
+					});
 			
-		
+					
 		</script>
     </body>
 </html>     
