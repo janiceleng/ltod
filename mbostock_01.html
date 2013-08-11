@@ -22,7 +22,7 @@ var vis = d3.select("body").append("svg:svg")
 var force = d3.layout.force()
     .nodes(nodes)
     .links([])
-    .gravity(0.01) // low low gravity gives tiny pull to each other
+    .gravity(0.9)
     .size([w, h]);
 
 force.on("tick", function(e) {
