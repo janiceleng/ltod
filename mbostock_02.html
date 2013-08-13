@@ -37,7 +37,9 @@ for(var i=0; i<rangedY.length; i++){
 	var tempArray = new Object();
 	for(var j=0; j<rangedX.length; j++){
 		tempArray = {	x: rangedX[j], 
-						y: rangedY[i]};
+						y: rangedY[i],
+						fixed: true
+						};
 		nodes.push(tempArray);
 	}
 };
@@ -48,8 +50,6 @@ var force = d3.layout.force()
     .nodes(nodes)
     .size([width, height])
     .on("tick", tick)
-    .alpha(.1)
-    .charge(-20)
     .start();
 
 var svg = d3.select("body").append("svg")
@@ -68,8 +68,8 @@ var node = svg.selectAll(".node")
     .style("stroke", function(d, i) { return "lightgrey"; })
     .call(force.drag)
     .on("mousedown", function(d) { 
-    	d3.select(this).style("fill","firebrick")
-    					.attr("transform", "translate(" +d.x +","+ d.y+ ")");
+    	//d3.select(this).style("fill","firebrick")
+    	//				.attr("transform", "translate(" +d.x +","+ d.y+ ")");
     	
     });
 
@@ -84,6 +84,7 @@ d3.select("body")
 var n = nodes.length;
 
 function tick(e) {
+e.fixed=true;
 
 /*
 
@@ -103,7 +104,7 @@ nodes.forEach(function(d, i) {
 
 }
 
-function mousedown(d) {
+function mousedown() {
 	
   nodes.forEach(function(o, i) {
   	var distClicked = 40;
@@ -112,6 +113,8 @@ function mousedown(d) {
 	
 	var hypotenuse = Math.sqrt(Math.pow(xDist,2) + Math.pow(yDist,2));
 	if(hypotenuse < 150){
+		o.fixed = false;
+		force.resume();
 		distClicked = 40;
 	} else{
 		distClicked = 0;
