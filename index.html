@@ -4,104 +4,236 @@
         <meta charset="utf-8">
         <title>LTOD</title>
         <script type="text/javascript" src="../d3/d3.v3.js"></script>
+<style>
+body{
+	color: grey;
+	font-family: courier;
+	font-weight:normal;
+	padding:0;
+	margin:0;
+}
+a {color: lightgrey;
+text-decoration:none
+}
+h1{
+	padding:0;
+	margin:0;
+}
+button{
+	font-family: Courier;
+	font-size: 1em;
+	color:white;
+	background-color:lightskyblue;
+	border:none;
+	display:block;
+	float: left;
+	margin:10px 0 0 0;
+}
+button:hover{
+	background-color: aliceblue;
+	cursor:pointer;
+}
+#description, #svg {
+	float:left;
+	text-align:left;
+}
+#description{
+	padding: 0 20px 0 20px;
+}
+#container{
+	width:900px;
+	margin: 0 auto 0 auto;
+}
+#footer{
+	width:100%;
+	font-size: .8em; 
+	clear:left;
+	text-align:right;
+	color:lightgrey
+}
+</style>
     </head>
-    <body>
-    	<p><a href="http://www.dashingd3js.com/using-the-svg-coordinate-space">http://www.dashingd3js.com/using-the-svg-coordinate-space</a></p>
-        <p>http://bl.ocks.org/mbostock/1021841</p>
-        <script type="text/javascript">
-		
-		var w = screen.width-100;
-		var h = 500;
-		
-		var triangleData = 		[{"x":10, "y":0},
-							{"x":20, "y":20},
-							{"x":0, "y":20}];
-			
-		var svgContainer = d3.select("body").append("svg")
-						.attr("width", w) //browser size
-						.attr("height",h)
-						.style("border","10px solid grey")
-						.style("background-color","grey");
 
-		var triangle = d3.svg.line(triangleData)
-								.x(function (d){return d.x})
-								.y(function (d){return d.y})
-								.interpolate("linear");
+<body>
 
-		
-		//COMPLETE ARRAY of OBJECTS
-		var maxWidth = screen.width/2;
-		var maxHeight = screen.height/2;
-		var rangedX= d3.range(0,maxWidth,20); //start, stop, step... this is an array
-		var rangedY = d3.range(0,maxHeight,20); // this is also an array		
-		var newRange = new Array();
-		
-		for(var i=0; i<rangedY.length; i++){
-			var tempArray = new Object();
-			for(var j=0; j<rangedX.length; j++){
-				tempArray = {	x: rangedX[j], 
-								y: rangedY[i]};
-				newRange.push(tempArray);
-			}
-		};
-
-		var currentHover;
-		var currentX;
-		var currentY;
-		var redX;
-		var redY;
-		var redSelectionIndex;
-		
-		var force = d3.layout.force()
-			.nodes(newRange)
-			.links([])
-			.size([w, h])
-			.theta(100)
-			.alpha(.1)
-			.linkStrength(i.x)
-			.charge(-1);
-			
-		force.start();
-
-		force.on("tick", function(d) {
-			svgContainer.selectAll("path.node")
-					.attr("transform", function(d){ //console.log(d + "," + rangedY[i]);
-								return "translate(" + d.x + ","+ d.y +")" }) //this is key!!
-		});
+<div id="container">
+	<div id=svg></div>
+	<div id ="description">
+		<h1>LTOD</h1>
+		<p>Little Triangle of Destruction</p>
+		<button onclick="happy()">UNDO DESTRUCTION</button>
+	</div>
+	<div id="footer"> 
+	<hr />
+	Copyright © 2013 Janice Joo</br>
+	<a href="mailto:janicesunjoo@gmail.com">janicesunjoo@gmail.com</a>
+	</div>
+</div>
 
 
-		svgContainer.selectAll("path.node")
-					.data(newRange)
-					.enter()
-					.append("svg:path")
-					.attr("class","node")
-					.attr("d", triangle(triangleData))
-					.attr("transform", function(d){ //console.log(d + "," + rangedY[i]);
-													return "translate(" + d.x + ","+ d.y +")" }) //this is key!!
-					.attr("fill","lightskyblue")
-					.on("mouseover", function(d,i){
-						currentHover = d3.select(this);
-						currentX= d.x;
-						currentY = d.y;
-						currentHover.style("fill", "dodgerblue");
-					})
-					.on("mouseout", function(d,i){
-						if (i != redSelectionIndex){
-							currentHover.style("fill","lightskyblue");
-						} else{}
-					})
-					.on("click",function(d,i){
-						currentHover.style("fill","firebrick");
-						redSelectionIndex = i;
-						console.log("The exploder will be "+ redSelectionIndex);
+<script>
+// Hack of http://bl.ocks.org/mbostock/1021841
+var width = 500,
+    height = 600;
 
-						force.size([currentX/2, currentY/2]);
-						force.alpha(.1);
-
-					});
-
-
+var triangleData = 	[{"x":10, "y":0},
+					{"x":20, "y":20},
+					{"x":0, "y":20},
+					{"x":10, "y":0}
+					];
 	
-		</script>
-    </body>
-</html>     
+var triangle = d3.svg.line(triangleData)
+				.x(function (d){return d.x})
+				.y(function (d){return d.y})
+				.interpolate("linear");
+
+
+//COMPLETE ARRAY of OBJECTS
+var maxWidth = width;
+var maxHeight = 600;
+var rangedX= d3.range(0,maxWidth,20); //start, stop, step... this is an array
+var rangedY = d3.range(0,maxHeight,20); // this is also an array		
+var nodes = new Array();
+
+for(var i=0; i<rangedY.length; i++){
+	var tempArray = new Object();
+	for(var j=0; j<rangedX.length; j++){
+		tempArray = {	origX: rangedX[j], 
+						origY: rangedY[i],
+						x: rangedX[j], 
+						y: rangedY[i],
+						fixed: true,
+						ltod: false,
+						color: "lightskyblue"
+						};
+		nodes.push(tempArray);
+	}
+};
+
+nodes[605].color = "red";
+
+var force = d3.layout.force()
+    .nodes(nodes)
+    .charge(-5)
+    .size([maxWidth, maxHeight])
+    .on("tick", tick)
+    .start();
+
+var svg = d3.select("div#svg").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .style("background-color", "aliceblue");
+
+var currentHover;
+var ltod;
+
+var node = svg.selectAll(".node")
+    .data(nodes)
+  .enter().append("path")
+  	.attr("d", triangle(triangleData))
+    .attr("class", "node")
+	.attr("transform", function(d){ return "translate(" + d.x + ","+ d.y +")" })
+    .attr("r", 8)
+    .style("fill", function(d, i) { return d.color; })
+ //   .style("stroke", function(d, i) { return "lightgrey"; })
+    .call(force.drag)
+    .on("mouseover", function(d){
+    	if(d.color !== "red"){
+    		d3.select(this).style("fill", "pink");
+    	} else {
+    		d3.select(this).style("stroke", "red");
+    		d3.select(this).style("stroke-linecap", "round");
+    		d3.select(this).style("stroke-width", "6px");
+    		d3.select(this).style("cursor","pointer");
+    	}
+    })
+    .on("mouseout", function(d){
+    	if(d.color == "red"){
+    		d3.select(this).style("stroke-width", "0");
+    	} else{
+			d3.select(this).transition().style("fill","lightskyblue");	
+		}
+    });
+
+
+svg.style("opacity", 1e-6)
+  .transition()
+    .duration(1000)
+    .style("opacity", 1);
+
+d3.selectAll(".node")
+    .on("click", mousedown);
+
+d3.selectAll("svg")
+	.on("mousedown", getMouseCoordinates);
+
+var mouseX;
+var mouseY;
+
+function getMouseCoordinates(d){
+	mouseX = d3.mouse(this)[0];
+	mouseY = d3.mouse(this)[1];
+};
+
+var n = nodes.length;
+
+function tick(e) {
+	e.fixed=true;
+	//	node.style("transform", "rotate(45)");
+	node.attr("transform", function(d){ return "translate(" + d.x + ","+ d.y +")" });
+}
+
+function mousedown(d) {
+	//console.log(mouseX + " OR " + d3.mouse(this)[0]);
+	//console.log(d.x + " " + d.y);
+
+	if(d.index==605){console.log(d.index);
+	
+		//explosion
+		ltod = d3.select(this);
+		ltod.attr("class", "ltod");
+		ltod.style("fill","red");
+		svg.style("background-color","pink");
+		svg.transition().duration(1000).style("background-color","aliceblue");
+		
+	  nodes.forEach(function(o, i) {
+		var distClicked = 40;
+		xDist = Math.abs(o.x - mouseX);
+		yDist =	Math.abs(o.y - mouseY);
+		
+		var hypotenuse = Math.sqrt(Math.pow(xDist,2) + Math.pow(yDist,2));
+		if(hypotenuse < 100){
+			o.fixed = false;
+			force.alpha(.006);
+			distClicked = ~~(Math.random() * 40);
+		} else{
+			distClicked = 0;
+		}
+		//distClicked = 1/distClicked*5000;
+		
+		//calculate distance from the item clicked
+		//console.log(event.x);
+	
+		//console.log(o.index + " " +  distClicked);
+		
+		//multiply by distance clicked
+		o.x += (Math.random() - .5) * distClicked;
+		o.y += (Math.random() - .5) * distClicked;
+	  });
+	};
+};
+
+function happy(){
+	force.stop();
+	nodes.forEach(function(d,i){
+		d.x = d.origX;
+		d.y = d.origY;
+	});
+	d3.selectAll(".node").transition().duration(500).attr("transform", function(d){ return "translate(" + d.origX + ","+ d.origY +")" });
+	d3.selectAll(".ltod").transition().duration(1000).attr("transform", function(d){ return "translate(" + d.origX + ","+ d.origY +")" });
+	console.log("happy");
+
+};
+
+
+</script>
