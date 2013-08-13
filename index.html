@@ -28,17 +28,12 @@
 								.y(function (d){return d.y})
 								.interpolate("linear");
 
+		
+		//COMPLETE ARRAY of OBJECTS
 		var maxWidth = screen.width/2;
 		var maxHeight = screen.height/2;
 		var rangedX= d3.range(0,maxWidth,20); //start, stop, step... this is an array
-		var rangedY = d3.range(0,maxHeight,20); // this is also an array
-		
-		// maybe i can create an array of arrays
-		// tutorial here: http://alignedleft.com/tutorials/d3/making-a-scatterplot 
-		// a better answer here: http://www.javascripter.net/faq/twodimensional.htm
-		
-		
-		//COMPLETE ARRAY of OBJECTS
+		var rangedY = d3.range(0,maxHeight,20); // this is also an array		
 		var newRange = new Array();
 		
 		for(var i=0; i<rangedY.length; i++){
@@ -49,7 +44,7 @@
 				newRange.push(tempArray);
 			}
 		};
-		console.log(newRange[2]);
+
 		var currentHover;
 		var currentX;
 		var currentY;
@@ -62,43 +57,25 @@
 			.links([])
 			.size([w, h])
 			.theta(100)
-			.charge(0);
-
-		force.on("tick", function(d,i) {
-			var root = newRange[redSelectionIndex];
-			root.fixed = true; // added this line to fix the red triangle
-
-	//	root.radius = 100;
-			svgContainer.selectAll("path")  	
-						.attr("transform", function(d,i) { 
-								return "translate(" + d.x + "," + d.y + ")"; 
-			});
-			force.start();
+			.alpha(.1)
+			.linkStrength(i.x)
+			.charge(-1);
 			
-			
-	
+		force.start();
+
+		force.on("tick", function(d) {
+			svgContainer.selectAll("path.node")
+					.attr("transform", function(d){ //console.log(d + "," + rangedY[i]);
+								return "translate(" + d.x + ","+ d.y +")" }) //this is key!!
 		});
-		var myVar =setInterval(function(){myTimer()},1000);
-	
-		function myTimer(){
-			console.log("hello");
-			force.charge(-1);
-			myStopFunction();
-		}
-		function myStopFunction(){
-			clearInterval(myVar);
-			}
 
-	
 
-		var triangleAdd = svgContainer.selectAll("path")
+		svgContainer.selectAll("path.node")
 					.data(newRange)
 					.enter()
-					.append("path")
+					.append("svg:path")
 					.attr("class","node")
 					.attr("d", triangle(triangleData))
-				//	.attr("cx",function(d){return d.x;})
-				//	.attr("cy",function(d){return d.y;})
 					.attr("transform", function(d){ //console.log(d + "," + rangedY[i]);
 													return "translate(" + d.x + ","+ d.y +")" }) //this is key!!
 					.attr("fill","lightskyblue")
@@ -106,8 +83,6 @@
 						currentHover = d3.select(this);
 						currentX= d.x;
 						currentY = d.y;
-						console.log(i);
-						console.log(d.x);
 						currentHover.style("fill", "dodgerblue");
 					})
 					.on("mouseout", function(d,i){
@@ -116,26 +91,13 @@
 						} else{}
 					})
 					.on("click",function(d,i){
-						if (currentHover = d3.select(this)){
-							redSelectionIndex = i;
-							redX = currentX;
-							redY = currentY;
-							currentHover.style("fill","firebrick");
-							console.log("The exploder will be "+ redSelectionIndex);
-							force.size([redX*2, redY*2]);
+						currentHover.style("fill","firebrick");
+						redSelectionIndex = i;
+						console.log("The exploder will be "+ redSelectionIndex);
 
-							//newRange.splice(redSelectionIndex,1); console.log("yippee");
-							force.start();
-	//						for (var i = 0; i < 10; ++i) {force.tick();};
-	//						force.stop();
+						force.size([currentX/2, currentY/2]);
+						force.alpha(.1);
 
-						};
-						newRange.forEach(function(o, i) {
-							console.log("other");
-							o.x += (Math.random() - .5) * 40;
-							o.y += (Math.random() - .5) * 40;
-						  });
-						  force.resume();
 					});
 
 

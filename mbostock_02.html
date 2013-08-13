@@ -67,7 +67,11 @@ var node = svg.selectAll(".node")
     .style("fill", function(d, i) { return "lightskyblue"; })
     .style("stroke", function(d, i) { return "lightgrey"; })
     .call(force.drag)
-    .on("mousedown", function() {  });
+    .on("mousedown", function(d) { 
+    	d3.select(this).style("fill","firebrick")
+    					.attr("transform", "translate(" +d.x +","+ d.y+ ")");
+    	
+    });
 
 svg.style("opacity", 1e-6)
   .transition()
@@ -99,7 +103,8 @@ nodes.forEach(function(d, i) {
 
 }
 
-function mousedown() {
+function mousedown(d) {
+	
   nodes.forEach(function(o, i) {
   	var distClicked = 40;
 	var xDist = Math.abs(o.x - event.x);
@@ -107,9 +112,9 @@ function mousedown() {
 	
 	var hypotenuse = Math.sqrt(Math.pow(xDist,2) + Math.pow(yDist,2));
 	if(hypotenuse < 150){
-	distClicked = 40;
+		distClicked = 40;
 	} else{
-	distClicked = 0;
+		distClicked = 0;
 	}
 	//distClicked = 1/distClicked*5000;
 	
