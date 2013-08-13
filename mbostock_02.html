@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.node {
+  stroke-width: 1.5px;
+}
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+
+var width = 960,
+    height = 500;
+
+var fill = d3.scale.category10();
+
+var triangleData = 	[{"x":10, "y":0},
+					{"x":20, "y":20},
+					{"x":0, "y":20}];
+
+var triangle = d3.svg.line(triangleData)
+				.x(function (d){return d.x})
+				.y(function (d){return d.y})
+				.interpolate("linear");
+
+
+//COMPLETE ARRAY of OBJECTS
+var maxWidth = screen.width/2;
+var maxHeight = screen.height/2;
+var rangedX= d3.range(0,maxWidth,20); //start, stop, step... this is an array
+var rangedY = d3.range(0,maxHeight,20); // this is also an array		
+var nodes = new Array();
+
+for(var i=0; i<rangedY.length; i++){
+	var tempArray = new Object();
+	for(var j=0; j<rangedX.length; j++){
+		tempArray = {	x: rangedX[j], 
+						y: rangedY[i]};
+		nodes.push(tempArray);
+	}
+};
+
+console.log(nodes[0]);
+
+var force = d3.layout.force()
+    .nodes(nodes)
+    .size([width, height])
+    .on("tick", tick)
+    .alpha(.1)
+    .charge(-20)
+    .start();
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .style("background-color", "aliceblue");
+
+var node = svg.selectAll(".node")
+    .data(nodes)
+  .enter().append("path")
+  	.attr("d", triangle(triangleData))
+    .attr("class", "node")
+	.attr("transform", function(d){ return "translate(" + d.x + ","+ d.y +")" })
+    .attr("r", 8)
+    .style("fill", function(d, i) { return "lightskyblue"; })
+    .style("stroke", function(d, i) { return "lightgrey"; })
+    .call(force.drag)
+    .on("mousedown", function() {  });
+
+svg.style("opacity", 1e-6)
+  .transition()
+    .duration(1000)
+    .style("opacity", 1);
+
+d3.select("body")
+    .on("mousedown", mousedown);
+
+var n = nodes.length;
+
+function tick(e) {
+
+/*
+
+nodes.forEach(function(d, i) {
+  d.x = d.y = width / n * i;
+});
+
+// Push different nodes in different directions for clustering.
+  var k = 6 * e.alpha;
+  nodes.forEach(function(o, i) {
+    o.y = nodes[i].y;
+    o.x = nodes[i].x;
+  });
+*/
+  node.attr("transform", function(d){ return "translate(" + d.x + ","+ d.y +")" });
+
+
+}
+
+function mousedown() {
+  nodes.forEach(function(o, i) {
+  	var distClicked = 40;
+	var xDist = Math.abs(o.x - event.x);
+	var yDist =	Math.abs(o.y - event.y);
+	
+	var hypotenuse = Math.sqrt(Math.pow(xDist,2) + Math.pow(yDist,2));
+	if(hypotenuse < 150){
+	distClicked = 40;
+	} else{
+	distClicked = 0;
+	}
+	//distClicked = 1/distClicked*5000;
+	
+  	//calculate distance from the item clicked
+  	//console.log(event.x);
+
+  	console.log(o.index + " " +  distClicked);
+  	
+  	//multiply by distance clicked
+    o.x += (Math.random() - .5) * distClicked;
+    o.y += (Math.random() - .5) * distClicked;
+  });
+  force.resume();
+}
+
+</script>
