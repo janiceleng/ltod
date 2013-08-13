@@ -41,7 +41,9 @@ var nodes = new Array();
 for(var i=0; i<rangedY.length; i++){
 	var tempArray = new Object();
 	for(var j=0; j<rangedX.length; j++){
-		tempArray = {	x: rangedX[j], 
+		tempArray = {	origX: rangedX[j], 
+						origY: rangedY[i],
+						x: rangedX[j], 
 						y: rangedY[i],
 						fixed: true,
 						ltod: false,
@@ -97,6 +99,7 @@ var node = svg.selectAll(".node")
 		}
     });
 
+
 svg.style("opacity", 1e-6)
   .transition()
     .duration(1000)
@@ -110,11 +113,12 @@ var n = nodes.length;
 function tick(e) {
 	e.fixed=true;
 	//	node.style("transform", "rotate(45)");
-
 	node.attr("transform", function(d){ return "translate(" + d.x + ","+ d.y +")" });
 }
 
 function mousedown(d) {
+	console.log(d.x + " " + d.y);
+
 	if(d.index==797){console.log(d.index);
 	
 		//explosion
@@ -152,9 +156,10 @@ function mousedown(d) {
 };
 
 function happy(){
-	console.log("happy");
 	force.stop();
-	node.attr("transform", function(d){ return "translate(" + d.x + ","+ d.y +")" });
+	d3.selectAll(".node").transition().attr("transform", function(d){ return "translate(" + d.origX + ","+ d.origY +")" });
+	d3.selectAll(".ltod").transition().attr("transform", function(d){ return "translate(" + d.origX + ","+ d.origY +")" });
+	console.log("happy");
 
 };
 
