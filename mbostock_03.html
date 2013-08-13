@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.node {
+  stroke-width: 1.5px;
+}
+
+</style>
+<body>
+
+<button onclick="happy()">Reset</button></br>
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+
+var width = 500,
+    height = 600;
+
+var fill = d3.scale.category10();
+
+var triangleData = 	[{"x":10, "y":0},
+					{"x":20, "y":20},
+					{"x":0, "y":20},
+					{"x":10, "y":0}
+					];
+	
+var triangle = d3.svg.line(triangleData)
+				.x(function (d){return d.x})
+				.y(function (d){return d.y})
+				.interpolate("linear");
+
+
+//COMPLETE ARRAY of OBJECTS
+var maxWidth = screen.width/2;
+var maxHeight = 600;
+var rangedX= d3.range(0,maxWidth,20); //start, stop, step... this is an array
+var rangedY = d3.range(0,maxHeight,20); // this is also an array		
+var nodes = new Array();
+
+for(var i=0; i<rangedY.length; i++){
+	var tempArray = new Object();
+	for(var j=0; j<rangedX.length; j++){
+		tempArray = {	x: rangedX[j], 
+						y: rangedY[i],
+						fixed: true,
+						ltod: false,
+						color: "lightskyblue"
+						};
+		nodes.push(tempArray);
+	}
+};
+
+nodes[797].color = "red";
+
+console.log(nodes[0]);
+
+var force = d3.layout.force()
+    .nodes(nodes)
+    .charge(-5)
+    .size([maxWidth, maxHeight])
+    .on("tick", tick)
+    .start();
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .style("background-color", "aliceblue");
+
+var currentHover;
+var ltod;
+
+var node = svg.selectAll(".node")
+    .data(nodes)
+  .enter().append("path")
+  	.attr("d", triangle(triangleData))
+    .attr("class", "node")
+	.attr("transform", function(d){ return "translate(" + d.x + ","+ d.y +")" })
+    .attr("r", 8)
+    .style("fill", function(d, i) { return d.color; })
+ //   .style("stroke", function(d, i) { return "lightgrey"; })
+    .call(force.drag)
+    .on("mouseover", function(d){
+    	if(d.color !== "red"){
+    		d3.select(this).style("fill", "pink");
+    	} else {
+    		d3.select(this).style("stroke", "red");
+    		d3.select(this).style("stroke-linecap", "round");
+    		d3.select(this).style("stroke-width", "6px");
+    	}
+    })
+    .on("mouseout", function(d){
+    	if(d.color == "red"){
+    		d3.select(this).style("stroke-width", "0");
+    	} else{
+			d3.select(this).transition().style("fill","lightskyblue");	
+		}
+    });
+
+svg.style("opacity", 1e-6)
+  .transition()
+    .duration(1000)
+    .style("opacity", 1);
+
+d3.selectAll(".node")
+    .on("click", mousedown);
+
+var n = nodes.length;
+
+function tick(e) {
+	e.fixed=true;
+	//	node.style("transform", "rotate(45)");
+
+	node.attr("transform", function(d){ return "translate(" + d.x + ","+ d.y +")" });
+}
+
+function mousedown(d) {
+	if(d.index==797){console.log(d.index);
+	
+		//explosion
+		ltod = d3.select(this);
+		ltod.attr("class", "ltod");
+		ltod.style("fill","red");
+		svg.style("background-color","pink");
+		svg.transition().duration(1000).style("background-color","aliceblue");
+		
+	  nodes.forEach(function(o, i) {
+		var distClicked = 40;
+		var xDist = Math.abs(o.x - event.x);
+		var yDist =	Math.abs(o.y - event.y);
+		
+		var hypotenuse = Math.sqrt(Math.pow(xDist,2) + Math.pow(yDist,2));
+		if(hypotenuse < 100){
+			o.fixed = false;
+			force.alpha(.006);
+			distClicked = ~~(Math.random() * 40);
+		} else{
+			distClicked = 0;
+		}
+		//distClicked = 1/distClicked*5000;
+		
+		//calculate distance from the item clicked
+		//console.log(event.x);
+	
+		//console.log(o.index + " " +  distClicked);
+		
+		//multiply by distance clicked
+		o.x += (Math.random() - .5) * distClicked;
+		o.y += (Math.random() - .5) * distClicked;
+	  });
+	};
+};
+
+function happy(){
+	console.log("happy");
+	force.stop();
+	node.attr("transform", function(d){ return "translate(" + d.x + ","+ d.y +")" });
+
+};
+
+
+</script>
