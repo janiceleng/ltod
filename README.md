@@ -1,5 +1,7 @@
 ltod
 ====
+LTOD
+Little Triangle of Destruction
 
 Brought to life a print illustration using d3
 
